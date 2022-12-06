@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -42,9 +44,27 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function canReserve(int $remainingCount, int $reservationCount): bool
+    public function reservations(): HasMany
     {
-        if ($remainingCount === 0) {
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function reservationCountThisMonth(): int
+    {
+        $today = Carbon::today();
+        return $this->reservations()
+            ->whereYear('created_at', $today->year)
+            ->whereMonth('created_at', $today->month)
+            ->count();
+        // あるいは以下のようにひとまとめにしてもいいでしょう
+        // return $this->reservations()
+        //    ->whereRaw("DATE_FORMAT(created_at, '%Y%m') = ?", $today->format('Ym'))
+        //    ->count();
+    }
+
+    public function canReserve(Lesson $lesson): bool
+    {
+        if ($lesson->remainingCount() === 0) {
             return false;
         }
 
@@ -52,6 +72,6 @@ class User extends Authenticatable
             return true;
         }
 
-        return $reservationCount < 5;
+        return $this->reservationCountThisMonth() < 5;
     }
 }
