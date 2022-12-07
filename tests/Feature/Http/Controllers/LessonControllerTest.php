@@ -29,6 +29,9 @@ class LessonControllerTest extends TestCase
             Reservation::factory()->create(['lesson_id' => $lesson->id, 'user_id' => $user->id]);
         }
 
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
         $response = $this->get("/lessons/{$lesson->id}");
 
         $response->assertStatus(Response::HTTP_OK);

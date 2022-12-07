@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,3 +20,10 @@ Route::get('/', function () {
 });
 
 Route::get('/lessons/{lesson}', [LessonController::class, 'show'])->name('lessons.show');
+Auth::routes();
+
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/lessons/{lesson}', [LessonController::class, 'show'])->name('lessons.show');
+});
