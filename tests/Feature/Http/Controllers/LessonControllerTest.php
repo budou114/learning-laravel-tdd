@@ -10,10 +10,12 @@ use App\Models\Lesson;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Models\UserProfile;
+use Tests\Factories\Traits\CreatesUser;
+
 
 class LessonControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, CreatesUser;
 
     /**
      * @param int $capacity
@@ -28,6 +30,21 @@ class LessonControllerTest extends TestCase
         for ($i = 0; $i < $reservationCount; $i++) {
             $user = User::factory()->create();
             UserProfile::factory()->create(['user_id' => $user->id]);
+            // 状態やプロパティを指定したい場合
+            // テストケースによって変化するならデータプロバイダから渡すといいでしょう
+            $options = [
+                'states' => [
+                    'user' => ['加入1年未満'],
+                    'user_profile' => ['ゴールド会員', 'シニア会員'],
+                ],
+                'attributes' => [
+                    // 決まった名前が必要なケースはないと思いますが、あくまで例として
+                    'user' => ['name' => '山田太郎'],
+                    'user_profile' => ['plan' => 'gold'],
+                ],
+            ];
+            $user = $this->createUser();
+
             Reservation::factory()->create(['lesson_id' => $lesson->id, 'user_id' => $user->id]);
         }
 
