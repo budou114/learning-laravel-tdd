@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Lesson;
 use App\Models\Reservation;
+use App\Notifications\ReservationCompleted;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,6 +29,8 @@ class ReserveController extends Controller
         }
 
         Reservation::create(['lesson_id' => $lesson->id, 'user_id' => $user->id]);
+
+        $user->notify(new ReservationCompleted($lesson));
 
         return redirect()->route('lessons.show', ['lesson' => $lesson]);
     }
