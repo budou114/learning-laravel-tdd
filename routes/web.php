@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Lesson\ReserveController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +20,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/lessons/{lesson}', [LessonController::class, 'show'])->name('lessons.show');
+Auth::routes();
+
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/lessons/{lesson}', [LessonController::class, 'show'])->name('lessons.show');
+    Route::post('/lessons/{lesson}/reserve', ReserveController::class)->name('lessons.reserve');
+});
